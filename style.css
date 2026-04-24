@@ -1,0 +1,200 @@
+/* ===== FONT & BACKGROUND ===== */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: rgb(255, 255, 255);
+    overflow-x: hidden;
+}
+
+/* BACKGROUND ANIMASI ANGKA */
+body::before {
+    content: "π + × ÷ = √ ∑ ∫ 7 8 9";
+    position: fixed;
+    font-size: 120px;
+    opacity: 0.05;
+    animation: floatBg 20s linear infinite;
+}
+
+@keyframes floatBg {
+    0% { transform: translateY(100vh); }
+    100% { transform: translateY(-100vh); }
+}
+
+/* ===== JUDUL ===== */
+h1 {
+    margin-top: 20px;
+    font-size: 40px;
+    letter-spacing: 3px;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00eaff; }
+    to { text-shadow: 0 0 30px #00eaff; }
+}
+
+/* ===== START SCREEN ===== */
+#startScreen {
+    margin: auto;
+    border-radius: 20px;
+    width: 300px;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 1s ease;
+}
+
+input, select {
+    padding: 10px;
+    margin: 5px;
+    width: 90%;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+.startBtn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-size: 18px;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(45deg, #00eaff, #00ff88);
+    border: none;
+    transition: 0.3s;
+}
+.startBtn:hover {
+    transform: scale(1.1);
+}
+
+/* ===== GAME AREA ===== */
+#gameArea {
+    display: none;
+    margin-top: 20px;
+}
+
+/* PLAYER BOX */
+.playerBox {
+    width: 40%;
+    display: inline-block;
+    padding: 20px;
+    border-radius: 20px;
+    margin: 10px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    animation: fadeInUp 1s ease;
+    color: black;
+}
+
+/* ANIMASI MASUK */
+@keyframes fadeInUp {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* SOAL */
+.question {
+    font-size: 28px;
+    margin-bottom: 10px;
+    animation: pop 0.3s ease;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8); }
+    100% { transform: scale(1); }
+}
+
+/* PILIHAN */
+.choice {
+    padding: 12px;
+    margin: 5px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    background: rgba(0,0,0,0.6);
+}
+.choice:hover {
+    transform: scale(1.1);
+    background: #00eaff;
+}
+
+/* BENAR SALAH */
+.correct {
+    background: #00ff88 !important;
+    animation: correctAnim 0.5s;
+}
+.wrong {
+    background: #ff3b3b !important;
+    animation: shake 0.4s;
+}
+
+@keyframes correctAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+}
+
+/* TIMER */
+#timer {
+    font-size: 40px;
+    margin-top: 20px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* WINNER */
+#winnerScreen {
+    display: none;
+    margin-top: 40px;
+}
+
+#winnerText {
+    background: rgba(0,0,0,0.5);
+    padding: 20px;
+    border-radius: 15px;
+    max-width: 600px;
+    margin: auto;
+    text-align: left;
+    animation: fadeIn 1s;
+}
+
+.againBtn {
+    margin-top: 20px;
+    background: linear-gradient(45deg, #00ff88, #00eaff);
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    color: black;
+    font-size: 18px;
+    cursor: pointer;
+}
+#p1title, #p2title {
+    font-size: 22px;
+    color: #00eaff;
+    text-shadow: 0 0 10px #00eaff;
+}
+/* FADE */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

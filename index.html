@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<title>Math Duel Game</title>
+
+</head>
+<body>
+
+<h1> MATH BATTLE </h1>
+
+<!-- ======================================================================= -->
+<!--                           START SCREEN                                   -->
+<!-- ======================================================================= -->
+<div id="startScreen">
+    <h2>Masukkan Nama Pemain</h2>
+
+    <input id="p1name" placeholder="Nama Player 1"><br>
+    <input id="p2name" placeholder="Nama Player 2"><br>
+
+    <h3>Pilih Tema</h3>
+    <select id="themeSelect">
+        <option value="blue">Blue Neon</option>
+        <option value="red">Red Inferno</option>
+        <option value="green">Green Soft</option>
+        <option value="purple">Purple Glow</option>
+        <option value="dark">Dark Mode</option>
+    </select>
+
+    <h3>Pilih Jenis Soal</h3>
+    <select id="modeSelect">
+        <option value="add">Penjumlahan</option>
+        <option value="sub">Pengurangan</option>
+        <option value="mul">Perkalian</option>
+        <option value="div">Pembagian</option>
+    </select>
+
+    <br>
+    <button class="startBtn" onclick="startGame()">Mulai Permainan</button>
+</div>
+
+<!-- ======================================================================= -->
+<!--                             GAME AREA                                    -->
+<!-- ======================================================================= -->
+<div id="gameArea">
+
+    <button id="fullscreenBtn" onclick="toggleFullscreen()">Fullscreen</button>
+
+    <div id="timer">60</div>
+
+    <div class="playerBox" id="p1box">
+        <h2 id="p1title">Player 1</h2>
+        <h3>Score: <span id="p1score">0</span></h3>
+        <div class="question" id="p1question"></div>
+        <div id="p1choices"></div>
+    </div>
+
+    <div class="playerBox" id="p2box">
+        <h2 id="p2title">Player 2</h2>
+        <h3>Score: <span id="p2score">0</span></h3>
+        <div class="question" id="p2question"></div>
+        <div id="p2choices"></div>
+    </div>
+
+</div>
+
+<!-- ======================================================================= -->
+<!--                          WINNER SCREEN                                   -->
+<!-- ======================================================================= -->
+<div id="winnerScreen">
+    <div class="winnerBox" id="winnerText"></div>
+    <button class="againBtn" onclick="location.reload()">Main Lagi</button>
+</div>
+
+<script>
+
+let p1score = 0;
+let p2score = 0;
+
+let p1Correct = 0;
+let p1Wrong = 0;
+let p2Correct = 0;
+let p2Wrong = 0;
+
+let p1History = [];
+let p2History = [];
+
+let p1name = "";
+let p2name = "";
+
+let mode = "add";
+let timeLeft = 60;
+let timerInterval;
+
+/* =========================== THEME SYSTEM ============================= */
+function applyTheme(theme) {
+    let body = document.body;
+    let p1 = document.getElementById("p1box");
+    let p2 = document.getElementById("p2box");
+
+    if (theme === "blue") {
+        body.style.background = "#0b1220";
+        p1.style.background = p2.style.background = "white";
+        p1.style.boxShadow = p2.style.boxShadow = "0 0 20px #00aaff";
+    }
+    if (theme === "red") {
+        body.style.background = "#210505";
+        p1.style.background = p2.style.background = "white";
+        p1.style.boxShadow = p2.style.boxShadow = "0 0 20px #ff2222";
+    }
+    if (theme === "green") {
+        body.style.background = "#0a2015";
+        p1.style.background = p2.style.background = "white";
+        p1.style.boxShadow = p2.style.boxShadow = "0 0 20px #20ff88";
+    }
+    if (theme === "purple") {
+        body.style.background = "#150020";
+        p1.style.background = p2.style.background = "white";
+        p1.style.boxShadow = p2.style.boxShadow = "0 0 20px #cc33ff";
+    }
+    if (theme === "dark") {
+        body.style.background = "#0d0f16";
+        p1.style.background = p2.style.background = "white";
+        p1.style.boxShadow = p2.style.boxShadow = "0 0 20px #555";
+    }
+}
+
+/* =========================== FULLSCREEN ============================= */
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+/* =========================== START GAME ============================= */
+function startGame() {
+
+    let theme = document.getElementById("themeSelect").value;
+    applyTheme(theme);
+
+    mode = document.getElementById("modeSelect").value;
+
+    // AMBIL NAMA + TRIM
+    p1name = document.getElementById("p1name").value.trim();
+    p2name = document.getElementById("p2name").value.trim();
+
+    // DEFAULT kalau kosong
+    if (p1name === "") p1name = "Player 1";
+    if (p2name === "") p2name = "Player 2";
+
+    // SET NAMA KE UI
+    document.getElementById("p1title").innerText = p1name;
+    document.getElementById("p2title").innerText = p2name;
+
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("gameArea").style.display = "block";
+
+    generateQuestion(1);
+    generateQuestion(2);
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            endGame();
+        }
+    }, 1000);
+}
+
+/* =========================== GENERATE QUESTION ============================= */
+function generateQuestion(player) {
+    let a = Math.floor(Math.random() * 10) + 1;
+    let b = Math.floor(Math.random() * 10) + 1;
+
+    let question = "";
+    let correct = 0;
+
+    if (mode === "add") {
+        question = a + " + " + b + " = ?";
+        correct = a + b;
+    }
+    else if (mode === "sub") {
+        if (a < b) {
+            let temp = a;
+            a = b;
+            b = temp;
+        }
+        question = a + " - " + b + " = ?";
+        correct = a - b;
+    }
+    else if (mode === "mul") {
+        question = a + " x " + b + " = ?"; // ganti × jadi x
+        correct = a * b;
+    }
+    else if (mode === "div") {
+        correct = b;
+        let c = a * b;
+        question = c + " / " + a + " = ?"; // ganti ÷ jadi /
+    }
+
+    let choices = [
+        correct,
+        correct + 1,
+        correct - 1,
+        correct + 2
+    ];
+
+    // shuffle manual aman
+    for (let i = choices.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [choices[i], choices[j]] = [choices[j], choices[i]];
+    }
+
+    if (player === 1) {
+        document.getElementById("p1question").innerText = question;
+        renderChoices("p1choices", choices, correct, 1);
+    } else {
+        document.getElementById("p2question").innerText = question;
+        renderChoices("p2choices", choices, correct, 2);
+    }
+}
+
+/* =========================== RENDER CHOICES ============================= */
+function renderChoices(containerId, choices, correct, player) {
+    let container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    choices.forEach(num => {
+        let div = document.createElement("div");
+        div.className = "choice";
+        div.innerText = num;
+
+        div.onclick = () => checkAnswer(div, num, correct, player);
+
+        container.appendChild(div);
+    });
+}
+
+function shuffle(arr) {
+    return arr.sort(() => Math.random() - 0.5);
+}
+
+/* =========================== CHECK ANSWER ============================= */
+function checkAnswer(element, answer, correct, player) {
+
+    let questionText = (player === 1)
+        ? document.getElementById("p1question").innerText
+        : document.getElementById("p2question").innerText;
+
+    let isCorrect = answer === correct;
+
+    if (isCorrect) {
+        element.classList.add("correct");
+
+        if (player === 1) {
+            p1score++;
+            p1Correct++;
+        } else {
+            p2score++;
+            p2Correct++;
+        }
+
+    } else {
+        element.classList.add("wrong");
+
+        if (player === 1) {
+            p1score--;
+            p1Wrong++;
+        } else {
+            p2score--;
+            p2Wrong++;
+        }
+    }
+    if (isCorrect) {
+    document.body.style.background = "#0f3d2e";
+    setTimeout(() => {
+        document.body.style.background = "";
+    }, 200);
+}
+
+    // SIMPAN DATA
+    let data = {
+        soal: questionText,
+        jawaban: answer,
+        benar: correct,
+        status: isCorrect ? "✔" : "✖"
+    };
+
+    if (player === 1) p1History.push(data);
+    else p2History.push(data);
+
+    document.getElementById("p1score").innerText = p1score;
+    document.getElementById("p2score").innerText = p2score;
+
+    setTimeout(() => {
+        generateQuestion(player);
+    }, 400);
+}
+/* =========================== END GAME ============================= */
+function endGame() {
+    document.getElementById("gameArea").style.display = "none";
+    document.getElementById("winnerScreen").style.display = "block";
+
+    let hasil = "";
+
+    // Pemenang
+    if (p1score > p2score) {
+        hasil += `🏆 Pemenang: ${p1name}<br><br>`;
+    } else if (p2score > p1score) {
+        hasil += `🏆 Pemenang: ${p2name}<br><br>`;
+    } else {
+        hasil += `⚖ Seri!<br><br>`;
+    }
+
+    // Ringkasan
+    hasil += `
+    <b>RINGKASAN</b><br>
+    ${p1name}: ✔ ${p1Correct} | ✖ ${p1Wrong}<br>
+    ${p2name}: ✔ ${p2Correct} | ✖ ${p2Wrong}<br><br>
+    `;
+
+    // Detail Player 1
+    hasil += `<b>Detail ${p1name}</b><br>`;
+    p1History.forEach((d, i) => {
+        hasil += `${i+1}. ${d.soal} → ${d.jawaban} (${d.status})<br>`;
+    });
+
+    hasil += `<br>`;
+
+    // Detail Player 2
+    hasil += `<b>Detail ${p2name}</b><br>`;
+    p2History.forEach((d, i) => {
+        hasil += `${i+1}. ${d.soal} → ${d.jawaban} (${d.status})<br>`;
+    });
+
+    document.getElementById("winnerText").innerHTML = hasil;
+}
+
+</script>
+
+</body>
+</html>
